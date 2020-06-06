@@ -1,0 +1,10 @@
+version: "3"
+services:
+  app:
+    build: .
+    environment:
+      - "SWAGGER_JSON=/mnt/greenskeeperapi.yaml"
+    volumes:
+      - .:/mnt
+    ports:
+      - "8071:8080"

@@ -1,0 +1,228 @@
+openapi: 3.0.0
+
+info:
+  description: The greeenskeeper API
+  version: "v1"
+  title: greenskeeper API
+
+paths:
+  /plants:
+    post:
+      tags:
+        - plants
+      parameters:
+        - $ref: '#/components/parameters/acceptLanguageParam'
+      description: Create a new plant
+      requestBody:
+        description: Information for cart entry to add
+        required: true
+        content:
+          application/json:
+           schema:
+            $ref: '#/components/schemas/PlantEntryCreate'
+      responses:
+        '201':
+          description: Successfull creation of a new plant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plant'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /plants/{id}/upload:
+    post:
+      tags:
+        - plants
+      parameters:
+        - $ref: '#/components/parameters/acceptLanguageParam'
+      description: Upload plant image
+      requestBody:
+        description: Information for uploading plant image
+        required: true
+        content:
+          image/png:
+            schema:
+             type: string
+             format: binary
+      responses:
+        '201':
+          description: Successfull upload of the image
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plant'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /plants/categories:
+    get:
+      tags:
+        - category
+      description: Obtain plant categories
+      parameters:
+        - $ref: '#/components/parameters/acceptLanguageParam'
+      responses:
+        '200':
+          description: Successfull pull of the categories
+          content:
+            application/json:
+             schema:
+              type: array
+              items:
+               $ref: '#/components/schemas/Category'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  ## Parameters ##
+  parameters:
+
+    acceptLanguageParam:
+      name: accept-language
+      in: header
+      required: false
+      description: Language of the user to deliver the content in the correct tongue.
+      schema:
+        type: string
+        default: de
+        example: de
+
+  requestBodies:
+
+  ## Responses ##
+  responses:
+
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    BadRequest:
+      description: The request can't be handled in its current form
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Something went wrong on the server side
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  ## Schemas ##
+  schemas:
+
+    PlantEntryCreate:
+      description: Model containing information the client needs to provide for adding a plant
+      properties:
+        plantName:
+          type: string
+          description: Identifier of the plant
+          example: Peace lilly
+        category:
+          type: string
+          description: Category of the plant
+          example: Foliage Plant
+      required:
+        - plantName
+        - category
+
+    ### Errors ###
+
+    Error:
+      description: Model containing information about an error
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+      required:
+        - code
+        - message
+
+    ### Plant ###
+
+    Plant:
+      description: Model containing information about a plant
+      properties:
+        id:
+          type: string
+          description: Identifier of a plant
+          example: E4A5120A-7385-4454-A7D3-C7DAF89646B7
+        name:
+          type: string
+          description: Text for the name of the plant
+          example: Peacelilly
+        imageUrl:
+          type: string
+          description: Url for the image of the plant
+          example: https://www.myplant.com/peacelilly
+        category:
+          type: string
+          description: Text for the category of the plant
+          example: Foliage Plant
+        waterRequirement:
+          type: string
+          description: Text for the water requirement
+          example: Weekly once
+        sunlight:
+          type: string
+          description: Text for the light requiremnt
+          example: Moderate
+        fertlizer:
+          type: string
+          description: Text for the fertlizer requiremnt
+          example: Moderate
+        soilType:
+          type: string
+          description: Text for the soil type
+          example: Sandy soil
+      required:
+        - name
+        - imageUrl
+        - category
+        - waterRequirement
+        - sunlight
+        - fertilizer
+        - soilType
+
+    Category:
+      description: Model containing information about the plant categories (e.g. entries using the same car)
+      properties:
+        title:
+         type: string
+         example: Foliage plant
+        wateringCriteria:
+          type: object
+          properties:
+            duration:
+              type: string
+              description: Durartion of watering
+              enum: [DAILY, WEEKLY, MONTLY]
+            frequency:
+              type: string
+              description: Number of times to water/duration
+              example: 2
+      required:
+        - title
+        - wateringCriteria
