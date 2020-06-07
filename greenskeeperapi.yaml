@@ -32,6 +32,27 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /plants/{id}:
+    get:
+     tags:
+      - plants
+     description: Obtain plant
+     parameters:
+       - $ref: '#/components/parameters/acceptLanguageParam'
+     responses:
+       '200':
+         description: Successfull pull of the plat information
+         content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Plant'
+       '400':
+         $ref: '#/components/responses/BadRequest'
+       '404':
+         $ref: '#/components/responses/NotFound'
+       '500':
+         $ref: '#/components/responses/InternalServerError'
+
   /plants/{id}/upload:
     post:
       tags:
@@ -43,10 +64,14 @@ paths:
         description: Information for uploading plant image
         required: true
         content:
-          image/png:
-            schema:
-             type: string
-             format: binary
+         'image/jpeg':
+           schema:
+            type: string
+            format: binary
+         'image/png':
+           schema:
+            type: string
+            format: binary
       responses:
         '201':
           description: Successfull upload of the image
@@ -62,7 +87,7 @@ paths:
   /plants/categories:
     get:
       tags:
-        - category
+        - plants
       description: Obtain plant categories
       parameters:
         - $ref: '#/components/parameters/acceptLanguageParam'
@@ -207,7 +232,7 @@ components:
         - soilType
 
     Category:
-      description: Model containing information about the plant categories (e.g. entries using the same car)
+      description: Model containing information about the plant categories
       properties:
         title:
          type: string
